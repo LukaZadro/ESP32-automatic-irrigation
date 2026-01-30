@@ -78,12 +78,6 @@ void loop() {
   my_data.soil_moisture = soil_moisture;
   my_data.air_temp = bmp.readTemperature();
 
-  //Serial.print("Soil moisture: ");
-  //Serial.println(soil_moisture);
-  //erial.print("Light intensity: ");
-  //Serial.println(light_intensity);
-  //Serial.println(light_intensity);
-
   // slanje poruke
   esp_err_t result = esp_now_send(broadcast_address, (uint8_t *) &my_data, sizeof(my_data));
    

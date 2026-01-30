@@ -17,8 +17,8 @@ typedef struct struct_message {
 
 //inicijalizacija strukure za podatke
 struct_message my_data;
-//semafor za i bool varijabla za pristup podacima
-volatile bool dataAvailable = false;
+//sbool varijabla za pristup podacima
+volatile bool data_available = false;
 
 //false => navodnjavanje po senzorima, true => rucno preko web stranice
 bool manual_mode = false;
@@ -33,7 +33,7 @@ void OnDataRecv(const uint8_t * mac, const uint8_t *incoming_data, int len) {
 
   //azuriramo globalne vrijednosti
   my_data = tmp;
-  dataAvailable = true;
+  data_available = true;
 
   Serial.print("Bytes received: ");
   Serial.println(len);
@@ -126,7 +126,7 @@ void setup() {
   server.on("/api/status", HTTP_GET, [](AsyncWebServerRequest *request){
     StaticJsonDocument<200> doc;
 
-    if (!dataAvailable) {
+    if (!data_available) {
       doc["soil"] = nullptr;
       doc["light"] = nullptr;
       doc["temp"] = nullptr;
