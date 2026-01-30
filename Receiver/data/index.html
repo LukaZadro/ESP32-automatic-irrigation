@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>ESP32 Sensor Info</title>
+	<link rel="stylesheet" href="/index.css">
+</head>
+<body>
+	<h2>ESP32 Sensor Info</h2>
+	<button id="fetchBtn">Get Sensor Data</button>
+	<div id="sensorData">Sensor data will appear here.</div>
+	<label for="manualSwitch">Manual mode</label>
+	<input type="checkbox" id="manualSwitch">
+	<br>
+	<button id="manualBtn" disabled>Turn ON the valve</button>
+	<button id="manualOffBtn" disabled>Turn OFF the valve</button>
+	<br>
+	<script>
+		document.getElementById('fetchBtn').onclick = async function() {
+			const sensorDataDiv = document.getElementById('sensorData');
+			sensorDataDiv.textContent = 'Loading...';
+			try {
+				const response = await fetch('/api/status');
+				if (!response.ok) throw new Error('Network response was not ok');
+				const data = await response.json();
+				sensorDataDiv.innerHTML = `
+					<strong>Soil Moisture:</strong> ${data.soil} %<br>
+					<strong>Outside Temperature:</strong> ${data.temp} °C<br>
+					<strong>Light Intensity:</strong> ${data.light} % <br> 
+				`;
+			} catch (err) {
+				sensorDataDiv.textContent = 'Error fetching sensor data: ' + err;
+			}
+		};
+	//logika za manual switch
+	const manualSwitch = document.getElementById('manualSwitch');
+	const manualBtn = document.getElementById('manualBtn');
+	const manualOffBtn = document.getElementById('manualOffBtn');
+	   manualSwitch.addEventListener('change', async function() {
+		   if (manualSwitch.checked) {
+			   manualBtn.disabled = false;
+			   manualOffBtn.disabled = false;
+			   try {
+				const response = await fetch('/api/manualMode/on', {method: 'POST'});
+				if (!response.ok) throw new Error('Network response was not ok');
+			   } catch (err){
+				alert('Greška pri uključivanju ventila: ' + err)
+			   }
+		   } else {
+			   manualBtn.disabled = true;
+			   manualOffBtn.disabled = true;
+			   try {
+				const response = await fetch('/api/manualMode/off', {method: 'POST'});
+				if (!response.ok) throw new Error('Network response was not ok');
+			   } catch (err){
+				alert('Greška pri uključivanju ventila: ' + err)
+			   }
+		   }
+	   });
+
+	   manualBtn.addEventListener('click', async function() {
+		   //serveru za ručno uključivanje ventila
+		   try {
+			   const response = await fetch('/api/ventil/on', { method: 'POST' });
+			   if (!response.ok) throw new Error('Network response was not ok');
+			   alert('Ventil uključen!');
+		   } catch (err) {
+			   alert('Greška pri uključivanju ventila: ' + err);
+		   }
+	   });
+
+	   manualOffBtn.addEventListener('click', async function() {
+		   //zahtjev serveru za ručno isključivanje ventila
+		   try {
+			   const response = await fetch('/api/ventil/off', { method: 'POST' });
+			   if (!response.ok) throw new Error('Network response was not ok');
+			   alert('Ventil isključen!');
+		   } catch (err) {
+			   alert('Greška pri isključivanju ventila: ' + err);
+		   }
+	   });
+	</script>
+</body>
+</html>
